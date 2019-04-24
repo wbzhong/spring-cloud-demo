@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    bus:
+      enabled: true
+      trace:
+        enabled: true
+    consul:
+      host: localhost
+      port: 8500
+    config:
+      server:
+        git:
+          uri: https://github.com/wbzhong/config-repo.git
+server:
+  port: 8516
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

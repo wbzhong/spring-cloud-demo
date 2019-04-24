@@ -1,0 +1,80 @@
+server:
+  port: 8515
+
+spring:
+  application:
+    name: consul-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+    gateway:
+      discovery:
+        locator: #是否与服务注册于发现组件进行结合，通过 serviceId 转发到具体的服务实例
+          enabled: true
+      routes:
+      - id: hystrix-route
+        uri: lb://service-producer
+        predicates:
+        - Path=/hello
+        filters:
+        - name: Hystrix
+          args:
+            name: fallbackcmd
+            fallbackUri: forward:/fallback
+        - AddRequestParameter=name, zhangsan
+
+      - id: add_request_parameter_route
+        uri: lb://service-producer
+        filters:
+        - AddRequestParameter=foo, bar
+        predicates:
+        - Path=/foo
+        - Method=GET
+      - id: name_route
+        uri: lb://service-producer
+        predicates:
+        - Path=/name/**
+        filters:
+        - StripPrefix=2
+      - id: weight_route1
+        uri: http://localhost:8501/
+        predicates:
+        - Weight=weight_route1, 5
+        - Path=/test/**
+        filters:
+        - StripPrefix=1
+        - AddRequestParameter=foo, bar
+
+      - id: weight_route2
+        uri: http://localhost:8501/
+        predicates:
+        - Weight=weight_route1, 5
+        - Path=/test/**
+        filters:
+        - StripPrefix=1
+        - AddRequestParameter=name, zwb
+
+
+
+
+
+      #路由
+      #routes:
+      #- id: my_route1
+       # uri: http://ityouknow.com
+        #predicates:
+        # 各种 Predicates 同时存在于同一个路由时，请求必须同时满足所有的条件才被这个路由匹配
+        #- Path=/about
+        #- After=2019-01-01T06:06:06+08:00[Asia/Shanghai]
+        #- Before=2019-01-01T06:06:06+08:00[Asia/Shanghai]
+        #- Between=2018-01-20T06:06:06+08:00[Asia/Shanghai], 2019-01-20T06:06:06+08:00[Asia/Shanghai]
+        #-  Cookie=ityouknow, kee.e
+        #- Header=X-Request-Id, \d+
+        #- Method=GET
+        #- Path=/foo/{segment}
+        #- Query=smile
+        #- RemoteAddr=192.168.1.10/24
+logging:
+  level:
+    org.springframework.cloud.gateway: debug

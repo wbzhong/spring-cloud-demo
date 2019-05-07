@@ -23,6 +23,6 @@ public class HelloController {
     }
     @GetMapping("/foo")
     public String foo(@RequestParam("foo")String foo){
-        return "this is from producer2"+ "foo "+foo+",i am from port: "+port;
+        return "this is from producer2 "+ "foo "+foo+",i am from port: "+port;
     }
 }
